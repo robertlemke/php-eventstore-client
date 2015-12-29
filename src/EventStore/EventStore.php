@@ -98,6 +98,7 @@ final class EventStore implements EventStoreInterface
     public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation)
     {
         $url = $streamFeed->getLinkUrl($relation);
+        $url = $this->fixUserInfoInUrl($url);
 
         if (empty($url)) {
             return null;
@@ -255,6 +256,21 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
+     * @param $url
+     * @return string
+     */
+    private function fixUserInfoInUrl($url)
+    {
+        $baseUri = new Uri($this->url);
+        if ($baseUri->getUserInfo() !== '') {
+            $uri = new Uri($url);
+            $uri = $uri->withUserInfo($baseUri->getUserInfo());
+            $url = (string)$uri;
+        }
+        return $url;
+    }
+
+    /**
      * @param  string                            $streamUrl
      * @param  EntryEmbedMode                    $embedMode
      * @return StreamFeed
@@ -263,6 +279,7 @@ final class EventStore implements EventStoreInterface
      */
     private function readStreamFeed($streamUrl, EntryEmbedMode $embedMode = null)
     {
+        $streamUrl = $this->fixUserInfoInUrl($streamUrl);
         $request = $this->getJsonRequest($streamUrl);
 
         if ($embedMode != null && $embedMode != EntryEmbedMode::NONE()) {
@@ -288,6 +305,7 @@ final class EventStore implements EventStoreInterface
      */
     private function getJsonRequest($uri)
     {
+        $uri = $this->fixUserInfoInUrl($uri);
         return new Request(
             'GET',
             $uri,
