@@ -32,6 +32,14 @@ final class Entry
 
         return $alternate;
     }
+    /**
+     * @return array
+     */
+    public function getEventType()
+    {
+        return $this->json['eventType'];
+
+    }
 
     public function getTitle()
     {
