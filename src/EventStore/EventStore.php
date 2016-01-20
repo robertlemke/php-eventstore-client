@@ -57,6 +57,7 @@ final class EventStore implements EventStoreInterface
         $this->url = $url;
 
         $this->httpClient = $httpClient ?: new GuzzleHttpClient();
+
         $this->checkConnection();
         $this->initBadCodeHandlers();
     }
@@ -103,7 +104,6 @@ final class EventStore implements EventStoreInterface
         if (empty($url)) {
             return null;
         }
-
         return $this->readStreamFeed($url, $streamFeed->getEntryEmbedMode());
     }
 
@@ -117,7 +117,6 @@ final class EventStore implements EventStoreInterface
     public function openStreamFeed($streamName, EntryEmbedMode $embedMode = null)
     {
         $url = $this->getStreamUrl($streamName);
-
         return $this->readStreamFeed($url, $embedMode);
     }
 
@@ -262,11 +261,10 @@ final class EventStore implements EventStoreInterface
     private function fixUserInfoInUrl($url)
     {
         $baseUri = new Uri($this->url);
-        if ($baseUri->getUserInfo() !== '') {
-            $uri = new Uri($url);
-            $uri = $uri->withUserInfo($baseUri->getUserInfo());
-            $url = (string)$uri;
-        }
+        $uri = new Uri($url);
+        $uri = $uri->withUserInfo($baseUri->getUserInfo());
+        $uri = $uri->withPort($baseUri->getPort());
+        $url = (string)$uri;
         return $url;
     }
 
